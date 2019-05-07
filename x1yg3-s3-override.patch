@@ -1,0 +1,18 @@
+--- dsdt.dsl  2019-05-05 21:42:46.137486914 -0700
++++ dsdt.dsl  2019-05-05 21:45:23.489591442 -0700
+21c21
+< DefinitionBlock ("", "DSDT", 2, "LENOVO", "SKL     ", 0x00000000)
+---
+> DefinitionBlock ("", "DSDT", 2, "LENOVO", "SKL     ", 0x00000001)
+265d264
+<     One
+267d265
+<     One
+27771a27769,27775
+>         0x00
+>     })
+>     Name (\_S3, Package (0x04)  // _S3_: S3 System State
+>     {
+>         0x05,
+>         0x05,
+>         0x00,
