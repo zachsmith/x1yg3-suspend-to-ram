@@ -9,14 +9,10 @@ when trying to put the X1YG3 to sleep. Lenovo has implemented S3 support as an
 option in a BIOS update to the X1 Carbon (6th Gen) (X1CG6) but has thus far opted not to port the
 same support to the X1YG3 BIOS.
 
-Fortunately, you can enable S3 support by modifying the firmwares ACPI Differentiated
+Fortunately, you can enable S3 support by modifying the firmware's ACPI Differentiated
 System Description Table (DSDT) that is loaded by your Linux kernel. It would be
 nice if Lenovo would add support but it has been over a year so I'm not holding
-out much hope at this point. That said, if you dual-boot your X1YG3, you may not
-want to enable S3 support in the BIOS and might want to keep patching your DSDT
-because Windows would need to be reinstalled. Yes, you read that right - there is no way
-to configure Windows that was installed on a Modern Standby system to use S3
-once enabled; you need to reinstall.
+out much hope at this point.
 
 These instructions are for Fedora but I hope others can provide pull requests with
 updated instructions for other distributions.
