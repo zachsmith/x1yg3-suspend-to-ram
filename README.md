@@ -146,7 +146,7 @@ sudo cp dsdt.aml /boot/acpi_override/x1yg3-s3-override.aml
 
 ### Configure ACPI override for `dracut`
 
-Create `/etc/dracut.conf/acpi.conf` and add the following lines:
+Create `/etc/dracut.conf.d/acpi.conf` and add the following lines:
 
 ``` shell
 acpi_override="yes"
