@@ -220,7 +220,36 @@ that your `grub` configuration passed the parameter to the kernel at boot.
 
 Go ahead and enjoy the convenience of putting your computer to sleep!
 
-### Going forward
+## Potential Issues
+
+You may still encounter suspend related issues. Here are some I've encountered
+and fixes where I have them.
+
+### PM: Device 0000:00:14.0 failed to suspend async: error -16
+
+If you see errors like these in your `journal`, it may be related to a problem
+suspending your XHCI controller:
+
+```
+pci_pm_suspend(): hcd_pci_suspend+0x0/0x30 returns -16
+dpm_run_callback(): pci_pm_suspend+0x0/0x120 returns -16
+PM: Device 0000:00:14.0 failed to suspend async: error -16
+PM: Some devices failed to suspend, or early wake event detected
+```
+
+I found this [great
+hack](https://gist.github.com/ioggstream/8f380d398aef989ac455b93b92d42048#file-system-sleep-xhci-sh)
+and made a few modifications and improvements in the `xhci.sh` script included
+in this repo. You can have systemd run this script at `pre` and `post` suspend
+by placing it in the `/usr/lib/systemd/system-sleep` directory. I encourage your
+to read and understand the script before installing it as it will run with root
+privileges. _Read more about this in the [systemd-suspend](http://man7.org/linux/man-pages/man8/systemd-sleep.8.html) man page_.
+
+``` shell
+cp xhci.sh /usr/lib/systemd/system-sleep
+```
+
+## Going forward
 
 You should probably repeat these steps after each BIOS update. I'll try and keep the
 patch updated for new BIOS versions (if needed) or accept pull requests if
@@ -251,3 +280,5 @@ instructions. Here are a few that were particularly helpful.
 - https://forums.lenovo.com/t5/Other-Linux-Discussions/Linux-on-the-ThinkPad-X1-Yoga-3rd-Gen/m-p/4242717
 - https://uefi.org/acpi/specs
 - http://man7.org/linux/man-pages/man5/dracut.conf.5.html
+- http://man7.org/linux/man-pages/man8/systemd-sleep.8.html
+- https://gist.github.com/ioggstream/8f380d398aef989ac455b93b92d42048#file-system-sleep-xhci-sh
