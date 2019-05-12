@@ -1,0 +1,17 @@
+# The Lenovo X1 Yoga Gen. 3 uses a Wacom AES digitizer and pen
+# and sometimes it doesn't respond after resuming from deep sleep.
+# but seems to resume correctly if you bring it out of s2idle. This
+# systemd service fires after the suspend resumes and puts the
+# system into s2idle for 1 second which seems to reset the
+# Wacom digitizer.
+
+[Unit]
+Description= s2idle fo 1 second after resume
+After=suspend.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/rtcwake -m freeze -s 1
+
+[Install]
+WantedBy=suspend.target
