@@ -1,0 +1,16 @@
+# When using suspend-then-hibernate, failures to write to the
+# wakealarm to schedule the hibernation can result in failed
+# suspend. This oneshot service tries to minimize these failures
+# by always reseting the wakealarm before the suspend-then-hibernate
+# target is called.
+
+[Unit]
+Description= reset wake alarm before suspend-then-hibernate
+Before=suspend-then-hibernate.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'echo 0 > /sys/class/rtc/rtc0/wakealarm'
+
+[Install]
+WantedBy=suspend-then-hibernate.target
