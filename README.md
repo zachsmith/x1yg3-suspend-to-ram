@@ -245,6 +245,20 @@ privileges. _Read more about this in the [systemd-suspend](http://man7.org/linux
 cp xhci.sh /usr/lib/systemd/system-sleep
 ```
 
+### Touchscreen or stylus unresponsive after resume from suspend
+
+The Wacom touchscreen is often unresponsive after resuming from sleep.
+A user discovered that when waking from `s2idle`, the touchscreen worked
+correctly and posted this clever solution in a [Lenovo forum
+post](https://forums.lenovo.com/t5/Other-Linux-Discussions/X1Y3-Touchscreen-not-working-after-resume-on-Linux/td-p/4021200)
+which makes use of `rtcwake` triggered by a `systemd` `oneshot` service after
+`suspend.target`.
+
+``` shell
+sudo cp wake_wacom_hack.service /etc/systemd/system/`
+sudo systemctl enable wake_wacom_hack.service
+```
+
 ## Going forward
 
 You should probably repeat these steps after each BIOS update. I'll try and keep the
@@ -278,3 +292,4 @@ instructions. Here are a few that were particularly helpful.
 - http://man7.org/linux/man-pages/man5/dracut.conf.5.html
 - http://man7.org/linux/man-pages/man8/systemd-sleep.8.html
 - https://gist.github.com/ioggstream/8f380d398aef989ac455b93b92d42048#file-system-sleep-xhci-sh
+- https://forums.lenovo.com/t5/Other-Linux-Discussions/X1Y3-Touchscreen-not-working-after-resume-on-Linux/td-p/4021200
