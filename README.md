@@ -259,6 +259,41 @@ sudo cp wake_wacom_hack.service /etc/systemd/system/`
 sudo systemctl enable wake_wacom_hack.service
 ```
 
+### /sys/class/rtc/rtc0/wakealarm: Device or resource busy
+
+If you use `suspend-then-hibernate` you may encounter a situation where your
+system will not properly suspend. This can be caused by an error writing to the
+`/sys/class/rtc/rtc0/wakealarm`. You'll see something like this in your `journal`:
+
+```
+Failed to write '1557511414' to /sys/class/rtc/rtc0/wakealarm: Device or resource busy
+systemd-suspend-then-hibernate.service: Main process exited, code=exited, status=1/FAILURE
+systemd-suspend-then-hibernate.service: Failed with result 'exit-code'.
+Failed to start Suspend; Hibernate if not used for a period of time.
+Dependency failed for Suspend; Hibernate if not used for a period of time.
+suspend-then-hibernate.target: Job suspend-then-hibernate.target/start failed with result 'dependency'.
+Stopped target Sleep.
+```
+
+This happens because there is a value already
+present in the `wakealarm` and a new value cannot be written until the timer has
+triggered or has been reset. In general, I am more concerned with my computer
+suspending properly than any other random wakealarm scheduled by the system or
+firmware and this has been the most vexing suspend problem I have faced. The
+solution I came up with is inspired by the touchscreen fix above; use a `systemd`
+`oneshot` service to fire before `suspend-then-hibernate` target and reset the
+`wakealarm`.
+
+``` shell
+sudo cp wakealarm-reset.service /etc/systemd/system/`
+sudo systemctl enable wakealarm-reset.service
+```
+
+Of course, this is only relevant if you're making use of
+`suspend-then-hibernate` which was added in [version
+239](https://github.com/systemd/systemd/blob/master/NEWS#L1036-L1038) of
+systemd.
+
 ## Going forward
 
 You should probably repeat these steps after each BIOS update. I'll try and keep the
