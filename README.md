@@ -252,7 +252,9 @@ A user discovered that when waking from `s2idle`, the touchscreen worked
 correctly and posted this clever solution in a [Lenovo forum
 post](https://forums.lenovo.com/t5/Other-Linux-Discussions/X1Y3-Touchscreen-not-working-after-resume-on-Linux/td-p/4021200)
 which makes use of `rtcwake` triggered by a `systemd` `oneshot` service after
-`suspend.target`.
+`suspend.target`. I modified it to also trigger after `suspend-then-hibernate.target`
+and `hibernate.target`. This will add a slight delay to the resume so you may
+only want to enable this if you like having the touch display working.
 
 ``` shell
 sudo cp wake_wacom_hack.service /etc/systemd/system/`
