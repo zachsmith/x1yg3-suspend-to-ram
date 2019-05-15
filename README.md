@@ -296,6 +296,9 @@ Of course, this is only relevant if you're making use of
 239](https://github.com/systemd/systemd/blob/master/NEWS#L1036-L1038) of
 systemd.
 
+_I opened [an issue](https://github.com/systemd/systemd/issues/12567) with
+`systemd` to track getting a fix for this_
+
 ## Going forward
 
 You should probably repeat these steps after each BIOS update. I'll try and keep the
