@@ -299,6 +299,12 @@ systemd.
 _I opened [an issue](https://github.com/systemd/systemd/issues/12567) with
 `systemd` to track getting a fix for this_
 
+_**UPDATE:** This issue should be fixed with [PR
+#12591](https://github.com/systemd/systemd/pull/12591) and should be in a future
+version of `systemd`. The PR removes the dependency on rtc wakealarm and uses
+`CLOCK_BOOTTIME_ALARM` instead thus eliminating the error trying to write to
+`/sys/class/rtc/rtc0/wakealarm` when a pre-existing alarm is already set._
+
 ## Going forward
 
 You should probably repeat these steps after each BIOS update. I'll try and keep the
