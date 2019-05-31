@@ -1,0 +1,11 @@
+# Disable the Wacom touch screen on the Lenovo X1 Yoga (3rd Gen)
+#
+# Unfortunately, the X1YG3 sometimes suffers from ghost/phantom touch events which can be pretty irritating.
+# Since 95% of the time I'm not using the touchscreen functionalaity, I went ahead and wrote a udev rule
+# to disable the touchscreen. To use, copy this file to /etc/udev/rules.d/ and run:
+#
+# udevadm trigger --verbose --type=devices --attr-match=idVendor=056a --attr-match=idProduct=5146
+#
+# To re-enable set ATTR{authorized}="1"  and re-run the trigger command
+
+ATTRS{idVendor}=="056a", ATTRS{idProduct}=="5146", ATTR{authorized}="0"
