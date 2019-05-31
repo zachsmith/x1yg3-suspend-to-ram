@@ -261,6 +261,32 @@ sudo cp wake_wacom_hack.service /etc/systemd/system/`
 sudo systemctl enable wake_wacom_hack.service
 ```
 
+An alternative is to just disable the touchscreen and not worry about it
+resuming after wake. You may prefer to do this if you are also experiencing
+ghost/phantom touch issues. See the next section...
+
+### Ghost/Phantom touch events
+
+Unfortunately, I've experienced a lot of ghost/phantom touch events on my X1YG3 and it
+can get pretty irritating. Because I typically don't use the touchscreen, I went
+ahead and just disabled it using a custom `udev` rule. It's disappointing that there
+are issues with the touchscreen since that is one of the key features of the
+X1YG3 but I prefer not having phantom touch events to having a touchscreen that
+I use very infrequently.
+
+``` powershell
+sudo cp 99-x1yg3-touchscreen.rules /etc/udev/rules.d/
+sudo udevadm trigger --verbose --type=devices --attr-match=idVendor=056a --attr-match=idProduct=5146
+```
+
+You can always re-enable by editing `99-x1yg3-touchscreen.rules` and setting
+`ATTR{authorized}="1"` before running the `udevadm trigger` command listed
+above.
+
+_It should go without saying that if you disable your touch screen you don't
+need to use the `wake_wacom_hack.service` [described
+above](#touchscreen-or-stylus-unresponsive-after-resume-from-suspend)._
+
 ### /sys/class/rtc/rtc0/wakealarm: Device or resource busy
 
 If you use `suspend-then-hibernate` you may encounter a situation where your
