@@ -367,3 +367,4 @@ instructions. Here are a few that were particularly helpful.
 - http://man7.org/linux/man-pages/man8/systemd-sleep.8.html
 - https://gist.github.com/ioggstream/8f380d398aef989ac455b93b92d42048#file-system-sleep-xhci-sh
 - https://forums.lenovo.com/t5/Other-Linux-Discussions/X1Y3-Touchscreen-not-working-after-resume-on-Linux/td-p/4021200
+- https://projectgus.com/2014/09/blacklisting-a-single-usb-device-from-linux/
