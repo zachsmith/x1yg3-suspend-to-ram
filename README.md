@@ -1,30 +1,65 @@
 # Lenovo X1 Yoga (3rd Gen) Suspend-to-Ram on Linux
 
-The Lenovo X1 Yoga (3rd Gen) (X1YG3) BIOS does not expose support for Suspend-to-Ram
-(S3). Instead, it exposes [Modern
+Prior to BIOS version 1.34, the Lenovo X1 Yoga (3rd Gen) (X1YG3) BIOS did not expose support for Suspend-to-Ram
+(S3). Instead, it exposed only [Modern
 Standby](https://docs.microsoft.com/en-us/windows-hardware/design/device-experiences/modern-standby) (Si03)
 which is a low-power idle approach to suspend. Unfortunately, Linux does not
 currently provide good support for Modern Standby which leads to awful power drain
-when trying to put the X1YG3 to sleep. Lenovo has implemented S3 support as an
-option in a BIOS update to the X1 Carbon (6th Gen) (X1CG6) but has thus far opted not to port the
-same support to the X1YG3 BIOS.
+when trying to put the X1YG3 to sleep.
 
-Fortunately, you can enable S3 support by modifying the firmware's ACPI Differentiated
-System Description Table (DSDT) that is loaded by your Linux kernel. It would be
-nice if Lenovo would add support but it has been over a year so I'm not holding
-out much hope at this point.
+Thankfully, Lenovo finally added S3 support in BIOS 1.34 and I can report that it works
+correctly. The instructions to patch your DSDT to enable S3 can still be found below
+but as of 1.34 this is no longer necessary. If you're running a prior BIOS
+version you may still find the instructions helpful.
 
-These instructions are for Fedora but I hope others can provide pull requests with
-updated instructions for other distributions.
+You may still need to configure _deep_ sleep as the default so review the [Make
+sleep default to deep](#make-sleep-default-to-deep) section. You may also want
+to review the [Potential issues](#potential-issues) section which provides fixes
+for some common issues related to sleep but unrelated to the BIOS S3 support.
 
-## Prerequisites
+### A few notes about BIOS 1.34:
+
+It adds a new BIOS setting under `Config > Power` called "Modern Standby" which
+is `enabled` by default. This from the [release
+notes](https://download.lenovo.com/pccbbs/mobiles/n25ur23w.txt):
+
+  > - (New) Support Optimized Sleep State for Modern Standby in ThinkPad Setup - Config - Power.
+  >      (Note) "Enabled" selection is optimized for Windows OS,
+  >             "Disabled" selection is optimized for Linux OS.
+
+However, my experience has been that _there is no need to change this setting to
+enable S3 in Linux._ Simply leave it set to `enabled`, boot into Linux, and
+[confirm that S3 is supported](#confirm-s3-support). You _can_ change the
+_"Modern Standby"_ setting to `disabled` but it seems to have no bearing S3
+support in Linux. Also, I dual-boot and don't want to re-install Windows ([see
+below](#dual-booting-windows-modern-standby-and-s3)) so I leave Modern Standby
+`enabled`.
+
+### Dual-Booting Windows, Modern Standby, and S3
+
+If you dual-boot Linux & Windows, you may want to leave the Modern Standby
+alone as Microsoft claims that you [can't enable S3 support with a BIOS
+setting](https://docs.microsoft.com/en-us/windows-hardware/design/device-experiences/modern-standby):
+
+  > You cannot switch between S3 and Modern Standby by changing a setting in the
+  > BIOS. Switching the power model is not supported in Windows without a
+  > complete OS re-install.
+
+---
+
+## _Legacy Instructions for patching DSDT prior to BIOS 1.34_
+
+These instructions are for Fedora but hopefully they can at least be a helpful
+guide for other distributions.
+
+### Prerequisites
 
 This should go without saying, but **if you follow this guide you are
 responsible for any damage you do to your machine.** These instructions worked
 for me and I have no reason to believe they will cause problems but proceed at
 your own risk.
 
-### Disable SecureBoot
+#### Disable SecureBoot
 
 If you see `SecureBoot disabled` after running the following command, you're all
 set. If you don't, you need to disable SecureBoot in the BIOS.
@@ -33,7 +68,7 @@ set. If you don't, you need to disable SecureBoot in the BIOS.
 mokutil --sb-state # should display SecureBoot disabled
 ```
 
-### Check current ACPI support
+#### Check current ACPI support
 
 ``` shell
 dmesg | grep "ACPI: (supports"
@@ -42,7 +77,7 @@ dmesg | grep "ACPI: (supports"
 This command should return something like `ACPI: (supports S0 S4 S5)` which as
 you can see is missing S3 support.
 
-### Ensure _iasl_ is installed
+#### Ensure _iasl_ is installed
 
 ``` shell
 which iasl
@@ -55,7 +90,7 @@ installed, you can install it with:
 sudo dnf install acpica-tools
 ```
 
-### Check your BIOS version
+#### Check your BIOS version
 
 ``` shell
 sudo dmidecode -s bios-version
@@ -69,22 +104,22 @@ If `dmidecode` is missing, you can install it with:
 sudo dnf dmidecode
 ```
 
-### Clone this repository and change directory
+#### Clone this repository and change directory
 
 ``` shell
 git clone https://github.com/zachsmith/x1yg3-suspend-to-ram.git
 cd x1yg3-suspend-to-ram
 ```
 
-## Patch the Differentiated System Description Table (DSDT)
+### Patch the Differentiated System Description Table (DSDT)
 
-### Copy the current DSDT table exposed by the BIOS
+#### Copy the current DSDT table exposed by the BIOS
 
 ``` shell
 sudo cat /sys/firmware/acpi/tables/DSDT > dsdt.dat
 ```
 
-### Decompile the DSDT
+#### Decompile the DSDT
 
 This will produce a _dsdt.dsl_ file:
 
@@ -92,7 +127,7 @@ This will produce a _dsdt.dsl_ file:
 iasl -d dsdt.dat
 ```
 
-### Patch the DSL file
+#### Patch the DSL file
 
 ``` shell
 patch --verbose < x1yg3-s3-override.patch
@@ -117,7 +152,7 @@ done
 If this patch fails to apply, please open an issue and be sure to include
 your _dsdt.dst_ file and the version of your BIOS.
 
-### Recompile the DSDT
+#### Recompile the DSDT
 
 This will produce a _dsdt.aml_ file:
 
@@ -125,7 +160,7 @@ This will produce a _dsdt.aml_ file:
 iasl -tc -ve dsdt.dsl
 ```
 
-## Update _initramfs_ image
+### Update _initramfs_ image
 
 We are going to utilize `dracut` which is used by Fedora (and numerous other
 distributions) to build initramfs images. `dracut` allows you to provide
@@ -133,14 +168,14 @@ overridden ACPI tables to build into an image which is exactly what we need.
 This approach will include our updated tables in future initramfs images
 generated automatically (by kernel updates) or manually (like we'll do here).
 
-### Copy updated DSDT table
+#### Copy updated DSDT table
 
 ``` shell
 sudo mkdir /boot/acpi_override
 sudo cp dsdt.aml /boot/acpi_override/x1yg3-s3-override.aml
 ```
 
-### Configure ACPI override for `dracut`
+#### Configure ACPI override for `dracut`
 
 Create `/etc/dracut.conf.d/acpi.conf` and add the following lines:
 
@@ -149,7 +184,7 @@ acpi_override="yes"
 acpi_table_dir="/boot/acpi_override"
 ```
 
-### Rebuild your initramfs image
+#### Rebuild your initramfs image
 
 Update the initramfs image for your _current_ kernel.
 
@@ -158,7 +193,7 @@ cd /boot
 sudo dracut --force initramfs-$(uname -r).img
 ```
 
-## Make sleep default to _deep_
+### Make sleep default to _deep_
 
 First, look at your current `mem_sleep` values
 
@@ -171,19 +206,19 @@ the default. To do that, we need to pass a parameter to the kernel at boot time
 which we can do by editing our `grub` configuration. This change will insure that
 future kernels will also receive this parameter at boot.
 
-### Edit `/etc/default/grub`
+#### Edit `/etc/default/grub`
 
 Append the following to the end of the string defined by `GRUB_CMDLINE_LINUX`:
 
 `mem_sleep_default=deep`
 
-### Rebuild `grub.cfg`
+#### Rebuild `grub.cfg`
 
 ``` shell
 sudo grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
 ```
 
-## Final Steps
+### Final Steps
 
 At this point you should have patched your DSDT, rebuilt your `initramfs` for
 your current kernel, and rebuilt your `grub` configuration. You should be ready
@@ -192,9 +227,9 @@ to reboot your computer to check that everything works.
 _**Note: If you haven't already disabled secure boot, make sure to do it now before your
 system boots with the overridden DSDT table.**_
 
-## Reboot
+### Reboot
 
-### Confirm S3 support
+#### Confirm S3 support
 
 ``` shell
 dmesg | grep "ACPI: (supports"
@@ -203,7 +238,7 @@ dmesg | grep "ACPI: (supports"
 It should now display `ACPI: (supports S0 S3 S4 S5)` which includes S3. This
 means that your patched DSDT loaded.
 
-### Confirm _deep_ sleep is default
+#### Confirm _deep_ sleep is default
 
 ``` shell
 cat /sys/power/mem_sleep
@@ -212,9 +247,11 @@ cat /sys/power/mem_sleep
 This should now display `s2idle [deep]` (_the `[]`'s indicate default_). This means
 that your `grub` configuration passed the parameter to the kernel at boot.
 
-### Go to sleep!
+#### Go to sleep!
 
 Go ahead and enjoy the convenience of putting your computer to sleep!
+
+---
 
 ## Potential Issues
 
@@ -344,7 +381,9 @@ anybody would like to pitch in. See the _Pull Requests_ guidelines below.
 ### Linux Distributions
 
 If you'd like to adapt these instructions for your distribution, please add
-changes to the README and submit a pull request.
+changes to the README and submit a pull request. Make sure that your changes
+diverge only where instructions need to be different and insure that other
+distribution notes stay in place.
 
 ### Pull Requests
 
