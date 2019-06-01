@@ -374,11 +374,7 @@ version of `systemd`. The PR removes the dependency on rtc wakealarm and uses
 `CLOCK_BOOTTIME_ALARM` instead thus eliminating the error trying to write to
 `/sys/class/rtc/rtc0/wakealarm` when a pre-existing alarm is already set._
 
-## Going forward
-
-You should probably repeat these steps after each BIOS update. I'll try and keep the
-patch updated for new BIOS versions (if needed) or accept pull requests if
-anybody would like to pitch in. See the _Pull Requests_ guidelines below.
+---
 
 ## Help
 
@@ -394,6 +390,8 @@ distribution notes stay in place.
 Please submit pull requests from a branch with the following naming convention:
 
 `<BIOS_VERSION>-<BRIEF-DESCRIPTION>` such as `1_30-ubuntu-instructions`
+
+---
 
 ## Resources
 
