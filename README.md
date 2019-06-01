@@ -45,6 +45,10 @@ setting](https://docs.microsoft.com/en-us/windows-hardware/design/device-experie
   > BIOS. Switching the power model is not supported in Windows without a
   > complete OS re-install.
 
+Some X1YG3 users have claimed that [S3 works fine in Windows without a
+re-install](https://forums.lenovo.com/t5/Other-Linux-Discussions/X1-Yoga-3rd-Gen-S3-Sleep-Linux/m-p/4444072/highlight/true#M13292)
+after disabling "Modern Standby" but I haven't tested this myself.
+
 ---
 
 ## _Legacy Instructions for patching DSDT prior to BIOS 1.34_
