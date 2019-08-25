@@ -17,7 +17,28 @@ sleep default to deep](#make-sleep-default-to-deep) section. You may also want
 to review the [Potential issues](#potential-issues) section which provides fixes
 for some common issues related to sleep but unrelated to the BIOS S3 support.
 
-### A few notes about BIOS 1.34:
+### BIOS 1.35:
+
+It adds no new functionality or fixes but renames the "Modern Standby" setting
+added in BIOS 1.34 to "Sleep State" and changes the values to "Linux" and
+"Windows 10". `S3` support remains the same as in BIOS 1.34 _(see below)_. This from the
+[release notes](https://download.lenovo.com/pccbbs/mobiles/n25et49w.txt)
+
+> [Important updates]
+> Nothing.
+>
+> [New functions or enhancements]
+> Nothing.
+>
+> [Problem fixes]
+> - Change Setup item wording from "Modern Standby" to "Sleep State" in ThinkPad Setup - Config - Power.
+>  (Note) "Linux" option is optimized for Linux OS, Windows user must select "Windows 10" option.
+
+As with 1.34, I have left `Sleep State->Windows 10` (same as `Modern
+Standby->Enabled`) and have proper `S3` support in Linux and proper Modern
+Standby support retained in Windows 10 (dual-boot).
+
+### BIOS 1.34:
 
 It adds a new BIOS setting under `Config > Power` called "Modern Standby" which
 is `enabled` by default. This from the [release
