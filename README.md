@@ -17,12 +17,28 @@ sleep default to deep](#make-sleep-default-to-deep) section. You may also want
 to review the [Potential issues](#potential-issues) section which provides fixes
 for some common issues related to sleep but unrelated to the BIOS S3 support.
 
+### BIOS 1.36:
+
+No new functionality but includes a security fix and resolves a problem with
+Thunderbolt docks. `S3` support remains the same as in [BIOS 1.34](#bios-134)
+and works as expected. This from the [release notes](https://download.lenovo.com/pccbbs/mobiles/n25ur26w.txt):
+
+> [Important updates]
+> - Update includes a security fix.
+>
+> [New functions or enhancements]
+>   Nothing.
+>
+> [Problem fixes]
+> - Fixed an issue where system may enter shutdown after press power button of
+>   Thunderbolt 3 Dock Gen2/Thunderbolt 3 Workstation Dock to resume sleep state.
+
 ### BIOS 1.35:
 
 It adds no new functionality or fixes but renames the "Modern Standby" setting
 added in BIOS 1.34 to "Sleep State" and changes the values to "Linux" and
-"Windows 10". `S3` support remains the same as in BIOS 1.34 _(see below)_. This from the
-[release notes](https://download.lenovo.com/pccbbs/mobiles/n25et49w.txt)
+"Windows 10". `S3` support remains the same as in [BIOS 1.34](#bios-134) and
+works as expected. This from the [release notes](https://download.lenovo.com/pccbbs/mobiles/n25et49w.txt):
 
 > [Important updates]
 > Nothing.
