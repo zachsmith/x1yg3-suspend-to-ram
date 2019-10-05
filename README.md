@@ -369,6 +369,16 @@ _If you plan to disable your touch screen entirely you don't need to use the
 
 ### /sys/class/rtc/rtc0/wakealarm: Device or resource busy
 
+_**UPDATE:** **The fix for this issue is available in [systemd
+243](https://github.com/systemd/systemd/tree/v243)**. Check the version of systemd
+installed with your distribution: `systemctl --version`_
+
+_**UPDATE:** This issue should be fixed with [PR
+#12591](https://github.com/systemd/systemd/pull/12591) and should be in a future
+version of `systemd`. The PR removes the dependency on rtc wakealarm and uses
+`CLOCK_BOOTTIME_ALARM` instead thus eliminating the error trying to write to
+`/sys/class/rtc/rtc0/wakealarm` when a pre-existing alarm is already set._
+
 If you use `suspend-then-hibernate` you may encounter a situation where your
 system will not properly suspend. This can be caused by an error writing to the
 `/sys/class/rtc/rtc0/wakealarm`. You'll see something like this in your `journal`:
@@ -404,12 +414,6 @@ systemd.
 
 _I opened [an issue](https://github.com/systemd/systemd/issues/12567) with
 `systemd` to track getting a fix for this_
-
-_**UPDATE:** This issue should be fixed with [PR
-#12591](https://github.com/systemd/systemd/pull/12591) and should be in a future
-version of `systemd`. The PR removes the dependency on rtc wakealarm and uses
-`CLOCK_BOOTTIME_ALARM` instead thus eliminating the error trying to write to
-`/sys/class/rtc/rtc0/wakealarm` when a pre-existing alarm is already set._
 
 ---
 
