@@ -294,12 +294,12 @@ Go ahead and enjoy the convenience of putting your computer to sleep!
 
 ---
 
-## Potential Issues
+# Potential Issues
 
 You may still encounter suspend related issues. Here are some I've encountered
 and fixes where I have them.
 
-### PM: Device 0000:00:14.0 failed to suspend async: error -16
+## PM: Device 0000:00:14.0 failed to suspend async: error -16
 
 If you see errors like these in your `journal`, it may be related to a problem
 suspending your XHCI controller:
@@ -323,7 +323,7 @@ privileges. _Read more about this in the [systemd-suspend](http://man7.org/linux
 cp xhci.sh /usr/lib/systemd/system-sleep
 ```
 
-### Touchscreen or stylus unresponsive after resume from suspend
+## Touchscreen or stylus unresponsive after resume from suspend
 
 The Wacom touchscreen is often unresponsive after resuming from sleep.
 A user discovered that when waking from `s2idle`, the touchscreen worked
@@ -343,7 +343,7 @@ An alternative is to just disable the touchscreen and not worry about it
 resuming after wake. You may prefer to do this if you are also experiencing
 ghost/phantom touch issues. See the next section...
 
-### Ghost/Phantom touch events
+## Ghost/Phantom touch events
 
 Unfortunately, I've experienced a lot of ghost/phantom touch events on my X1YG3 and it
 can get pretty irritating. Because I typically don't use the touchscreen, I went
@@ -367,7 +367,7 @@ and invoking the trigger but I'm not convinced this is the right approach._
 _If you plan to disable your touch screen entirely you don't need to use the
 `wake_wacom_hack.service` [described above](#touchscreen-or-stylus-unresponsive-after-resume-from-suspend)._
 
-### /sys/class/rtc/rtc0/wakealarm: Device or resource busy
+## /sys/class/rtc/rtc0/wakealarm: Device or resource busy
 
 _**UPDATE:** **The fix for this issue is available in [systemd
 243](https://github.com/systemd/systemd/tree/v243)**. Check the version of systemd
@@ -415,7 +415,7 @@ systemd.
 _I opened [an issue](https://github.com/systemd/systemd/issues/12567) with
 `systemd` to track getting a fix for this_
 
-### Fan not working
+## Fan not working
 
 Thinkpads are notoriously problematic when it comes to getting the fans to work.
 Thankfully, there is a the `thinkfan` package that can be installed and
