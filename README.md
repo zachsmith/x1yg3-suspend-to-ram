@@ -299,6 +299,16 @@ Go ahead and enjoy the convenience of putting your computer to sleep!
 You may still encounter suspend related issues. Here are some I've encountered
 and fixes where I have them.
 
+* [PM: Device 0000:00:14.0 failed to suspend async: error
+  -16](https://github.com/zachsmith/x1yg3-suspend-to-ram/tree/add-thinkfan#pm-device-000000140-failed-to-suspend-async-error--16)
+* [Touchscreen or stylus unresponsive after resume from
+  suspend](https://github.com/zachsmith/x1yg3-suspend-to-ram/tree/add-thinkfan#touchscreen-or-stylus-unresponsive-after-resume-from-suspend)
+* [Ghost/Phantom touch
+  events](https://github.com/zachsmith/x1yg3-suspend-to-ram/tree/add-thinkfan#ghostphantom-touch-events)
+* [/sys/class/rtc/rtc0/wakealarm: Device or resource
+  busy](https://github.com/zachsmith/x1yg3-suspend-to-ram/tree/add-thinkfan#sysclassrtcrtc0wakealarm-device-or-resource-busy)
+* [Fan not working](https://github.com/zachsmith/x1yg3-suspend-to-ram/tree/add-thinkfan#fan-not-working)
+
 ## PM: Device 0000:00:14.0 failed to suspend async: error -16
 
 If you see errors like these in your `journal`, it may be related to a problem
