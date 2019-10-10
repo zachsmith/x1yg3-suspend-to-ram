@@ -294,12 +294,22 @@ Go ahead and enjoy the convenience of putting your computer to sleep!
 
 ---
 
-## Potential Issues
+# Potential Issues
 
 You may still encounter suspend related issues. Here are some I've encountered
 and fixes where I have them.
 
-### PM: Device 0000:00:14.0 failed to suspend async: error -16
+* [PM: Device 0000:00:14.0 failed to suspend async: error
+  -16](https://github.com/zachsmith/x1yg3-suspend-to-ram/tree/add-thinkfan#pm-device-000000140-failed-to-suspend-async-error--16)
+* [Touchscreen or stylus unresponsive after resume from
+  suspend](https://github.com/zachsmith/x1yg3-suspend-to-ram/tree/add-thinkfan#touchscreen-or-stylus-unresponsive-after-resume-from-suspend)
+* [Ghost/Phantom touch
+  events](https://github.com/zachsmith/x1yg3-suspend-to-ram/tree/add-thinkfan#ghostphantom-touch-events)
+* [/sys/class/rtc/rtc0/wakealarm: Device or resource
+  busy](https://github.com/zachsmith/x1yg3-suspend-to-ram/tree/add-thinkfan#sysclassrtcrtc0wakealarm-device-or-resource-busy)
+* [Fan not working](https://github.com/zachsmith/x1yg3-suspend-to-ram/tree/add-thinkfan#fan-not-working)
+
+## PM: Device 0000:00:14.0 failed to suspend async: error -16
 
 If you see errors like these in your `journal`, it may be related to a problem
 suspending your XHCI controller:
@@ -323,7 +333,7 @@ privileges. _Read more about this in the [systemd-suspend](http://man7.org/linux
 cp xhci.sh /usr/lib/systemd/system-sleep
 ```
 
-### Touchscreen or stylus unresponsive after resume from suspend
+## Touchscreen or stylus unresponsive after resume from suspend
 
 The Wacom touchscreen is often unresponsive after resuming from sleep.
 A user discovered that when waking from `s2idle`, the touchscreen worked
@@ -343,7 +353,7 @@ An alternative is to just disable the touchscreen and not worry about it
 resuming after wake. You may prefer to do this if you are also experiencing
 ghost/phantom touch issues. See the next section...
 
-### Ghost/Phantom touch events
+## Ghost/Phantom touch events
 
 Unfortunately, I've experienced a lot of ghost/phantom touch events on my X1YG3 and it
 can get pretty irritating. Because I typically don't use the touchscreen, I went
@@ -367,7 +377,7 @@ and invoking the trigger but I'm not convinced this is the right approach._
 _If you plan to disable your touch screen entirely you don't need to use the
 `wake_wacom_hack.service` [described above](#touchscreen-or-stylus-unresponsive-after-resume-from-suspend)._
 
-### /sys/class/rtc/rtc0/wakealarm: Device or resource busy
+## /sys/class/rtc/rtc0/wakealarm: Device or resource busy
 
 _**UPDATE:** **The fix for this issue is available in [systemd
 243](https://github.com/systemd/systemd/tree/v243)**. Check the version of systemd
@@ -415,6 +425,85 @@ systemd.
 _I opened [an issue](https://github.com/systemd/systemd/issues/12567) with
 `systemd` to track getting a fix for this_
 
+## Fan not working
+
+Thinkpads are notoriously problematic when it comes to getting the fans to work.
+Thankfully, there is a the `thinkfan` package that can be installed and
+configured to make sure your computer stays cool.
+
+``` shell
+sudo dnf install lm_sensors thinkfan
+```
+
+Next, detect the sensors and reload kernel modules that are needed after detection:
+
+```shell
+sudo sensors-detect --auto
+systemctl restart systemd-modules-load
+```
+
+You'll need to create a configuration file in `/etc/thinkfan.conf` with
+information about your sensors. Originally, I did this manually by running
+
+``` shell
+find /sys/devices -type f -name 'temp*_input'
+```
+
+and using the values in `/etc/thinkfile.conf` but I realized that the values can
+change and kernel modules can be loaded in inconsistent orders. This can
+result in `thinkfan` crashing or failing to start. I found [this
+gist](https://gist.github.com/abn/de81ba413f860b00c2db3ee4aa83e035) with some
+great notes and ideas for configuring `thinkfan` on an X1 Carbon Gen 5 and
+adapted them a bit for my X1YG3. The configurations and modified script I used
+are in the `thinkfan` directory of this repo. Inside you will find a script that
+generates the `/etc/thinkfan.conf` file and 3 `.conf` files to configure
+`thinkfan` to adjust how the service is started and restarted. This should work
+with an X1YG3 but if you have another Thinkpad you'll probably want to
+experiment a bit to make sure this works before installing. **WARNING:** the
+script and service runs as `root` so read them and understand it before running
+it on your system!
+
+``` shell
+chmod +x thinkfan/thinkfan-config
+sudo cp thinkfan/thinkfan-config /usr/local/bin/.
+sudo /usr/local/bin/thinkfan-config
+cat /etc/thinkfan.conf
+```
+
+This should install the `thinkfan-conf` script and generate an
+`/etc/thinkfan.conf` file for your system.
+
+The `thinkfan` rpm should have installed two systemd unit files;
+`/usr/lib/systemd/system/thinkfan.service` and
+`/usr/lib/systemd/system/thinkfan-wakeup.service`. You can confirm
+and review them with:
+
+``` shell
+systemctl cat thinkfan.service
+```
+
+Next, install the additional `thinkfan` service configurations, start the
+service, and check that it is running. There are three `.conf` files to install:
+
+* `00-generate-config.conf` will regenerate the `/etc/thinkfan.conf` file on
+  service start or restart. This will ensure that you have a config file that
+  `thinkfan` can use even if some of the sensor names have changed or kernel
+  modules have loaded in different orders. It runs the `thinkfan-conf` script
+  you just installed.
+* `10-restart-on-failure.conf` will restart `thinkfan` if it fails to help make
+  sure it is always running.
+* `override.conf` provides arguments for the `thinkfan` that are called by the service.
+
+``` shell
+sudo mkdir -p /etc/systemd/system/thinkfan.service.d
+sudo cp thinkfan/thinkfan.service.d/* /etc/systemd/system/thinkfan.service.d
+sudo systemctl enable thinkfan.service
+sudo systemctl start thinkfan.service
+journalctl status thinkfan.service
+```
+
+Hopefully that will keep `thinkfan` running smoothly and help keep your X1YG3 cool!
+
 ---
 
 ## Help
@@ -450,3 +539,4 @@ instructions. Here are a few that were particularly helpful.
 - https://gist.github.com/ioggstream/8f380d398aef989ac455b93b92d42048#file-system-sleep-xhci-sh
 - https://forums.lenovo.com/t5/Other-Linux-Discussions/X1Y3-Touchscreen-not-working-after-resume-on-Linux/td-p/4021200
 - https://projectgus.com/2014/09/blacklisting-a-single-usb-device-from-linux/
+- https://gist.github.com/abn/de81ba413f860b00c2db3ee4aa83e035
