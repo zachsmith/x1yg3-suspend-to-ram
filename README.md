@@ -415,6 +415,85 @@ systemd.
 _I opened [an issue](https://github.com/systemd/systemd/issues/12567) with
 `systemd` to track getting a fix for this_
 
+### Fan not working
+
+Thinkpads are notoriously problematic when it comes to getting the fans to work.
+Thankfully, there is a the `thinkfan` package that can be installed and
+configured to make sure your computer stays cool.
+
+``` shell
+sudo dnf install lm_sensors thinkfan
+```
+
+Next, detect the sensors and reload kernel modules that are needed after detection:
+
+```shell
+sudo sensors-detect --auto
+systemctl restart systemd-modules-load
+```
+
+You'll need to create a configuration file in `/etc/thinkfan.conf` with
+information about your sensors. Originally, I did this manually by running
+
+``` shell
+find /sys/devices -type f -name 'temp*_input'
+```
+
+and using the values in `/etc/thinkfile.conf` but I realized that the values can
+change and kernel modules can be loaded in inconsistent orders. This can
+result in `thinkfan` crashing or failing to start. I found [this
+gist](https://gist.github.com/abn/de81ba413f860b00c2db3ee4aa83e035) with some
+great notes and ideas for configuring `thinkfan` on an X1 Carbon Gen 5 and
+adapted them a bit for my X1YG3. The configurations and modified script I used
+are in the `thinkfan` directory of this repo. Inside you will find a script that
+generates the `/etc/thinkfan.conf` file and 3 `.conf` files to configure
+`thinkfan` to adjust how the service is started and restarted. This should work
+with an X1YG3 but if you have another Thinkpad you'll probably want to
+experiment a bit to make sure this works before installing. **WARNING:** the
+script and service runs as `root` so read them and understand it before running
+it on your system!
+
+``` shell
+chmod +x thinkfan/thinkfan-config
+sudo cp thinkfan/thinkfan-config /usr/local/bin/.
+sudo /usr/local/bin/thinkfan-config
+cat /etc/thinkfan.conf
+```
+
+This should install the `thinkfan-conf` script and generate an
+`/etc/thinkfan.conf` file for your system.
+
+The `thinkfan` rpm should have installed two systemd unit files;
+`/usr/lib/systemd/system/thinkfan.service` and
+`/usr/lib/systemd/system/thinkfan-wakeup.service`. You can confirm
+and review them with:
+
+``` shell
+systemctl cat thinkfan.service
+```
+
+Next, install the additional `thinkfan` service configurations, start the
+service, and check that it is running. There are three `.conf` files to install:
+
+* `00-generate-config.conf` will regenerate the `/etc/thinkfan.conf` file on
+  service start or restart. This will ensure that you have a config file that
+  `thinkfan` can use even if some of the sensor names have changed or kernel
+  modules have loaded in different orders. It runs the `thinkfan-conf` script
+  you just installed.
+* `10-restart-on-failure.conf` will restart `thinkfan` if it fails to help make
+  sure it is always running.
+* `override.conf` provides arguments for the `thinkfan` that are called by the service.
+
+``` shell
+sudo mkdir -p /etc/systemd/system/thinkfan.service.d
+sudo cp thinkfan/thinkfan.service.d/* /etc/systemd/system/thinkfan.service.d
+sudo systemctl enable thinkfan.service
+sudo systemctl start thinkfan.service
+journalctl status thinkfan.service
+```
+
+Hopefully that will keep `thinkfan` running smoothly and help keep your X1YG3 cool!
+
 ---
 
 ## Help
@@ -450,3 +529,4 @@ instructions. Here are a few that were particularly helpful.
 - https://gist.github.com/ioggstream/8f380d398aef989ac455b93b92d42048#file-system-sleep-xhci-sh
 - https://forums.lenovo.com/t5/Other-Linux-Discussions/X1Y3-Touchscreen-not-working-after-resume-on-Linux/td-p/4021200
 - https://projectgus.com/2014/09/blacklisting-a-single-usb-device-from-linux/
+- https://gist.github.com/abn/de81ba413f860b00c2db3ee4aa83e035
